@@ -1,0 +1,8 @@
+[
+{
+  "directory": "D:/project/MR_on_RTree/build",
+  "command": "D:\\env\\msys2\\ucrt64\\bin\\g++.exe   -g -o CMakeFiles\\Memory_Rtree.dir\\RtreeTest.cpp.obj -c D:\\project\\MR_on_RTree\\RtreeTest.cpp",
+  "file": "D:/project/MR_on_RTree/RtreeTest.cpp",
+  "output": "CMakeFiles/Memory_Rtree.dir/RtreeTest.cpp.obj"
+}
+]

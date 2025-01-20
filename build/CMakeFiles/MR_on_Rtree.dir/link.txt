@@ -1,0 +1,3 @@
+D:\env\cmake\bin\cmake.exe -E rm -f CMakeFiles\MR_on_Rtree.dir/objects.a
+D:\env\msys2\ucrt64\bin\ar.exe qc CMakeFiles\MR_on_Rtree.dir/objects.a @CMakeFiles\MR_on_Rtree.dir\objects1.rsp
+D:\env\msys2\ucrt64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\MR_on_Rtree.dir/objects.a -Wl,--no-whole-archive -o MR_on_Rtree.exe -Wl,--out-implib,libMR_on_Rtree.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\MR_on_Rtree.dir\linkLibs.rsp

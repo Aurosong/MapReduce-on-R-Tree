@@ -1,5 +1,6 @@
 #include <fstream>
 #include <cstdlib>
+#include <chrono>
 #include "Rtree/RTree.h"
 #include "MapReduce/master.h"
 #include <iostream>
@@ -33,7 +34,7 @@ std::vector<Rtree> dataGenerator(int dataSize, int subSize) {
 int main() {
 
     const int treeNum = 10; // number of R-Trees
-    const int insertNum = 500; // data inserted into single tree
+    const int insertNum = 1000; // data inserted into single tree
     const int workerNum = 5; // number of workers in MapReduce
 
     // query range
@@ -42,12 +43,15 @@ int main() {
     const int queryMaxX = 5000;
     const int queryMaxY = 10000;
 
+    auto start = std::chrono::high_resolution_clock::now();
     std::vector<Rtree> dataset = dataGenerator(treeNum, insertNum);
+    auto build_end = std::chrono::high_resolution_clock::now();
+
     Rectangle myQuery(Point(queryMinX, queryMinY), Point(queryMaxX, queryMaxY));
     Job myJob(myQuery, dataset);
     Master master;
     std::vector<Rectangle> result = master.excutor(myJob, 5);
-
+    auto query_end = std::chrono::high_resolution_clock::now();
 
     std::string result_toStr = "====== Query Result ======\n";
     result_toStr = result_toStr + "Your Query: " + myQuery.printRect();
@@ -59,6 +63,14 @@ int main() {
                        result.at(i).printRect();
     }
 
+    std::string time = "Program Supervisor: \n";
+    std::chrono::duration<double> build_time = build_end - start;
+    std::chrono::duration<double> query_time = query_end - build_end;
+    time = time + "Data Amount: " + std::to_string(insertNum) + "\n";
+    time = time + "Build Time: " + std::to_string(build_time.count()) + "\n";
+    time = time + "Query Time: " + std::to_string(query_time.count()) + "\n";
+
     std::cout << result_toStr << std::endl;
+    std::cout << time << std::endl;
     return 0;
 }

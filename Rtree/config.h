@@ -49,6 +49,7 @@ struct Rectangle {
     double getIntersectionArea(Rectangle rect);
     double getMinDist(Point pt);
     double getMaxMinDist(Point pt);
+    Point getMidPoint();
     std::string printRect();
 };
 
@@ -176,6 +177,12 @@ double Rectangle :: getMaxMinDist(Point pt) {
 
     sort(dist.begin(), dist.end());
     return dist[1]; 
+}
+
+Point Rectangle :: getMidPoint() {
+    double midX = (this -> low.x + this -> high.x) / 2;
+    double midY = (this -> low.y + this -> high.y) / 2;
+    return Point(midX, midY);
 }
 
 // if two rectangle intersect

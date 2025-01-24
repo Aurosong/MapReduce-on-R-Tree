@@ -59,7 +59,9 @@
         "cstring": "cpp",
         "cassert": "cpp",
         "iomanip": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "chrono": "cpp",
+        "ratio": "cpp"
     },
     "makefile.configureOnOpen": false
 }

@@ -18,7 +18,7 @@ std::vector<Rtree> dataGenerator(int dataSize, int subSize) {
             }
         }
         Rtree *tree = new Rtree();
-        tree -> initite(-1, 0, 0, 10);
+        tree -> initite(-1, 0, 0, 10, 0);
 
         for(int l = 0; l < pointSubSet.size(); l++) {
             Point pt1(pointSubSet[l][0], pointSubSet[l][1]);
@@ -34,7 +34,7 @@ std::vector<Rtree> dataGenerator(int dataSize, int subSize) {
 int main() {
 
     const int treeNum = 10; // number of R-Trees
-    const int insertNum = 1000; // data inserted into single tree
+    const int insertNum = 100; // data inserted into single tree
     const int workerNum = 5; // number of workers in MapReduce
 
     // query range

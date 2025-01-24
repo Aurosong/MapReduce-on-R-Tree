@@ -11,6 +11,7 @@ public:
     const int MAX_NODE_SPACE; // maximum node capacity
     int PAGE_COUNTER; // counter for page, everytime a new node constructed, this variable add 1
     std::map<int, Node*> nodeMap; // use std::map to store nodes in the tree
+    int splitMode; // 0 - quadratic split, 1 - linear split
 
     Rtree();
     Rtree(const Rtree& other);
@@ -18,13 +19,14 @@ public:
     Rtree& operator=(const Rtree& other);
     Rtree& operator=(const Rtree&& other);
     // ~Rtree();
-    void initite(int parent, int pageId, int level, int nodeSpace);
+    void initite(int parent, int pageId, int level, int nodeSpace, int _splitMode);
     void insertNode(Rectangle rect, int page);
     Node* getRoot();
     Node* chooseLeaf(Rectangle rect, Node* node);
     int findLeastGrowth(Rectangle rect, Node* node);
     Node* nextPageNumber(Node* node);
     Node** leafSplit(Node* leaf, Rectangle rect, int page);
+    std::vector<std::vector<int>> LinearSplit(Node* leaf, Rectangle rect, int page);
     std::vector<std::vector<int>> QuadraticSplit(Node* leaf, Rectangle rect, int page);
     // std::vector<Rectangle> queryRect(Rectangle queryRect);
     int* QuadraticPickSeeds(Node* node);
@@ -214,7 +216,11 @@ bool Node :: insert(Node* node) {
 
 // used to split index
 Node** Node :: splitIndex(Node* node) {
-    std::vector<std::vector<int>> group = (new Rtree()) -> QuadraticSplit(this, node -> getNodeRectangle(), node ->pageId);
+    // std::vector<std::vector<int>> group = (new Rtree()) -> QuadraticSplit(this, node -> getNodeRectangle(), node ->pageId);
+    std::vector<std::vector<int>> group;
+    if(tree -> splitMode == 0) group = (new Rtree()) -> QuadraticSplit(this, node -> getNodeRectangle(), node ->pageId);
+    else if(tree -> splitMode == 1) group = (new Rtree()) -> LinearSplit(this, node -> getNodeRectangle(), node ->pageId);
+
     Node* index1 = new Node(parent, pageId, level, tree -> MAX_NODE_SPACE, tree);
     Node* index2 = new Node(parent, -1, level, tree -> MAX_NODE_SPACE, tree);
     std::vector<int> group1 = group[0];
@@ -343,9 +349,10 @@ Rtree& Rtree :: operator = (const Rtree&& other) {
 // }
 
 // initialize a tree
-void Rtree :: initite(int parent, int pageId, int level, int nodeSpace) {
+void Rtree :: initite(int parent, int pageId, int level, int nodeSpace, int _splitMode) {
     Node *node = new Node(parent, pageId, level, nodeSpace, this);
     this -> nodeMap.emplace(0, node);
+    this -> splitMode = _splitMode;
 }
 
 // return the root of current tree
@@ -441,7 +448,11 @@ int Rtree :: findLeastGrowth(Rectangle rect, Node* node) {
 
 // split leaf when it overflow
 Node** Rtree :: leafSplit(Node* leaf, Rectangle rect, int page) {
-    std::vector<std::vector<int>> group = QuadraticSplit(leaf, rect, page);
+    // std::vector<std::vector<int>> group = QuadraticSplit(leaf, rect, page);
+    std::vector<std::vector<int>> group;
+    if(this -> splitMode == 0) group = QuadraticSplit(leaf, rect, page);
+    else if(this -> splitMode == 1) group = LinearSplit(leaf, rect, page);
+
     Node* n1 = new Node(leaf -> parent, -1, 0, MAX_NODE_SPACE, this);
     Node* n2 = new Node(leaf -> parent, -1, 0, MAX_NODE_SPACE, this);
     std::vector<int> group1 = group[0];
@@ -471,10 +482,33 @@ Node* Rtree :: nextPageNumber(Node* node) {
     return node;
 }
 
+std::vector<std::vector<int>> Rtree :: LinearSplit(Node* leaf, Rectangle rect, int page) {
+    leaf -> data.push_back(rect);
+    leaf -> childId.push_back(page);
+    int total = leaf -> rectNums + 1;
+
+    std::vector<double> midPtX;
+    double midX;
+    for(Rectangle entry : leaf -> data) {
+        midPtX.push_back(entry.getMidPoint().x);
+    }
+    std::sort(midPtX.begin(), midPtX.end());
+    if(midPtX.size() % 2 == 0) midX = (midPtX[midPtX.size() / 2 - 1] + midPtX[midPtX.size() / 2]) / 2.0;
+    else midX = midPtX[midPtX.size() / 2];
+
+    std::vector<int> group1;
+    std::vector<int> group2;
+    for(int i = 0; i < total; i++) {
+        if(leaf -> data.at(i).getMidPoint().x < midX) group1.push_back(leaf -> childId.at(i));
+        else group2.push_back(leaf -> childId.at(i));
+    }
+
+    std::vector<std::vector<int>> result = {group1, group2};
+    return result;
+}
+
 // realize the quadratic split ruls in R-Tree's definition
 std::vector<std::vector<int>> Rtree :: QuadraticSplit(Node* leaf, Rectangle rect, int page) {
-    // leaf -> data[leaf -> rectNums] = rect;
-    // leaf -> childId[leaf -> rectNums] = page;
     leaf -> data.push_back(rect);
     leaf -> childId.push_back(page);
     int total = leaf -> rectNums + 1;
